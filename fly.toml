@@ -1,0 +1,39 @@
+# Fly.io configuration
+app = "pr-review-bot"
+primary_region = "iad"  # Virginia, US
+
+[build]
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+  
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+  
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.http_checks]]
+    interval = "10s"
+    grace_period = "5s"
+    method = "GET"
+    path = "/health"
+    protocol = "http"
+    timeout = "2s"
+    tls_skip_verify = false
+
+[env]
+  GROQ_API_KEY = "must-be-set-via-fly-secrets"
+  GITHUB_WEBHOOK_SECRET = "must-be-set-via-fly-secrets"
+  GITHUB_APP_ID = "must-be-set-via-fly-secrets"
+  GITHUB_PRIVATE_KEY_PATH = "/app/private-key.pem"
+  SUPABASE_URL = "must-be-set-via-fly-secrets"
+  SUPABASE_KEY = "must-be-set-via-fly-secrets"
