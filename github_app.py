@@ -1,3 +1,4 @@
+import os
 import time
 import jwt
 import httpx
@@ -6,8 +7,10 @@ from config import config
 
 def _generate_jwt() -> str:
     """Generate a short-lived JWT signed with the GitHub App private key."""
-    with open(config.GITHUB_PRIVATE_KEY_PATH, "r") as f:
-        private_key = f.read()
+    # Read from env variable instead of file
+    private_key = os.getenv("GITHUB_PRIVATE_KEY")
+    if not private_key:
+        raise ValueError("GITHUB_PRIVATE_KEY environment variable is not set")
 
     now = int(time.time())
     payload = {
