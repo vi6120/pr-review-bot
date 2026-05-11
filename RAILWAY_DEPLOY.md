@@ -23,8 +23,8 @@ railway init
 ```bash
 railway variables set GROQ_API_KEY="your_groq_key"
 railway variables set GITHUB_WEBHOOK_SECRET="your_webhook_secret"
-railway variables set GITHUB_APP_ID="3677095"
-railway variables set SUPABASE_URL="https://gcfhrudsiuzocvnqgccc.supabase.co"
+railway variables set GITHUB_APP_ID="your_app_id"
+railway variables set SUPABASE_URL="your_supabase_url"
 railway variables set SUPABASE_KEY="your_supabase_key"
 ```
 

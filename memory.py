@@ -1,7 +1,6 @@
 import hashlib
 from typing import List, Optional
 from supabase import create_client, Client
-from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import SupabaseVectorStore
 from config import config
 

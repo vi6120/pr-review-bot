@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 from github_client import verify_signature, get_pr_diff, post_pr_comment
