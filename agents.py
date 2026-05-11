@@ -2,6 +2,7 @@ from typing import TypedDict
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import HumanMessage
 from llm import get_llm
+from memory import memory
 
 llm = get_llm()
 
@@ -19,11 +20,16 @@ class ReviewState(TypedDict):
 # --- Agents ---
 
 def reviewer_agent(state: ReviewState) -> dict:
-    response = llm.invoke([HumanMessage(content=(
+    context = memory.get_context_for_review(state['diff'])
+    prompt = (
         "You are a code reviewer. Review the following PR diff for code quality, "
-        "logic errors, readability, and best practices. Be concise and specific.\n\n"
-        f"{state['diff']}"
-    ))])
+        "logic errors, readability, and best practices. Be concise and specific."
+    )
+    if context:
+        prompt += f"\n\n{context}"
+    prompt += f"\n\n{state['diff']}"
+    
+    response = llm.invoke([HumanMessage(content=prompt)])
     return {"reviewer_output": response.content}
 
 

@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request, HTTPException, BackgroundTasks
 from github_client import verify_signature, get_pr_diff, post_pr_comment
 from github_app import get_installation_token
 from agents import run_review
+from memory import memory
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,6 +27,10 @@ async def process_pr(payload: dict, installation_id: int) -> None:
     comment = run_review(diff)
     post_pr_comment(repo, pr_number, token, comment)
     logger.info(f"Posted review comment on PR #{pr_number}")
+    
+    # Store in memory for future context
+    memory.store_review(repo, pr_number, diff, comment)
+    logger.info(f"Stored review in memory for PR #{pr_number}")
 
 
 @app.post("/webhook")
