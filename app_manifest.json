@@ -1,0 +1,14 @@
+{
+  "name": "pr-review-bot",
+  "description": "AI-powered PR reviewer using LangGraph agents",
+  "url": "https://your-deployed-url.fly.dev",
+  "webhook_active": true,
+  "webhook_url": "https://your-deployed-url.fly.dev/webhook",
+  "events": ["pull_request"],
+  "permissions": {
+    "pull_requests": "write",
+    "contents": "read"
+  },
+  "public": true,
+  "default_events": ["pull_request"]
+}
