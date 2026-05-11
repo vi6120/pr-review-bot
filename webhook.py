@@ -29,8 +29,11 @@ async def process_pr(payload: dict, installation_id: int) -> None:
     logger.info(f"Posted review comment on PR #{pr_number}")
     
     # Store in memory for future context
-    memory.store_review(repo, pr_number, diff, comment)
-    logger.info(f"Stored review in memory for PR #{pr_number}")
+    try:
+        memory.store_review(repo, pr_number, diff, comment)
+        logger.info(f"Stored review in memory for PR #{pr_number}")
+    except Exception as e:
+        logger.warning(f"Failed to store review in memory: {e}")
 
 
 @app.post("/webhook")

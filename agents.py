@@ -20,7 +20,12 @@ class ReviewState(TypedDict):
 # --- Agents ---
 
 def reviewer_agent(state: ReviewState) -> dict:
-    context = memory.get_context_for_review(state['diff'])
+    try:
+        context = memory.get_context_for_review(state['diff'])
+    except Exception as e:
+        context = ""
+        print(f"Memory lookup failed (non-critical): {e}")
+    
     prompt = (
         "You are a code reviewer. Review the following PR diff for code quality, "
         "logic errors, readability, and best practices. Be concise and specific."

@@ -22,11 +22,16 @@ class MemoryStore:
             return
 
         self.supabase = create_client(supabase_url, supabase_key)
-        embeddings = OpenAIEmbeddings(
-            openai_api_key=config.GROQ_API_KEY,
-            openai_api_base="https://api.groq.com/openai/v1",
-            model="text-embedding-3-small",
+        
+        # Use a local embedding model since Groq doesn't have embeddings
+        # This is a small model that runs locally, no API calls
+        from langchain_community.embeddings import HuggingFaceEmbeddings
+        embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            model_kwargs={'device': 'cpu'},
+            encode_kwargs={'normalize_embeddings': True}
         )
+        
         self.vector_store = SupabaseVectorStore(
             client=self.supabase,
             embedding=embeddings,
