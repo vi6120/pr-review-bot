@@ -21,23 +21,29 @@ class MemoryStore:
             print("⚠️  Supabase not configured — memory disabled")
             return
 
-        self.supabase = create_client(supabase_url, supabase_key)
-        
-        # Use a local embedding model since Groq doesn't have embeddings
-        # This is a small model that runs locally, no API calls
-        from langchain_community.embeddings import HuggingFaceEmbeddings
-        embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2",
-            model_kwargs={'device': 'cpu'},
-            encode_kwargs={'normalize_embeddings': True}
-        )
-        
-        self.vector_store = SupabaseVectorStore(
-            client=self.supabase,
-            embedding=embeddings,
-            table_name="pr_reviews",
-            query_name="match_pr_reviews",
-        )
+        try:
+            self.supabase = create_client(supabase_url, supabase_key)
+            
+            # Try to use local embeddings, but skip if not available
+            from langchain_community.embeddings import HuggingFaceEmbeddings
+            embeddings = HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2",
+                model_kwargs={'device': 'cpu'},
+                encode_kwargs={'normalize_embeddings': True}
+            )
+            
+            self.vector_store = SupabaseVectorStore(
+                client=self.supabase,
+                embedding=embeddings,
+                table_name="pr_reviews",
+                query_name="match_pr_reviews",
+            )
+        except ImportError:
+            print("⚠️  sentence-transformers not installed — memory disabled")
+            self.vector_store = None
+        except Exception as e:
+            print(f"⚠️  Memory initialization failed: {e}")
+            self.vector_store = None
 
     def store_review(self, repo: str, pr_number: int, diff: str, review: str) -> str:
         """Store a review in memory with embedding."""
