@@ -11,6 +11,7 @@ class Config:
     GITHUB_WEBHOOK_SECRET: str = os.getenv("GITHUB_WEBHOOK_SECRET", "")
     GITHUB_APP_ID: str = os.getenv("GITHUB_APP_ID", "")
     GITHUB_PRIVATE_KEY_PATH: str = os.getenv("GITHUB_PRIVATE_KEY_PATH", "")
+    GITHUB_BOT_USERNAME: str = os.getenv("GITHUB_BOT_USERNAME", "pr-review-bot[bot]")
     MEM0_API_KEY: str = os.getenv("MEM0_API_KEY", "")
     SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
     SUPABASE_KEY: str = os.getenv("SUPABASE_KEY", "")

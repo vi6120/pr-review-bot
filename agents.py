@@ -11,6 +11,7 @@ llm = get_llm()
 
 class ReviewState(TypedDict):
     diff: str
+    files_content: str
     reviewer_output: str
     security_output: str
     performance_output: str
@@ -22,38 +23,43 @@ class ReviewState(TypedDict):
 def reviewer_agent(state: ReviewState) -> dict:
     try:
         context = memory.get_context_for_review(state['diff'])
-    except Exception as e:
+    except Exception:
         context = ""
-        print(f"Memory lookup failed (non-critical): {e}")
-    
+
     prompt = (
-        "You are a code reviewer. Review the following PR diff for code quality, "
-        "logic errors, readability, and best practices. Be concise and specific."
+        "You are a code reviewer. Review the following PR for code quality, "
+        "logic errors, readability, and best practices. "
+        "Pay close attention to commented-out code blocks — flag them if they affect logic or performance. "
+        "Be concise and specific.\n\n"
+        f"## Diff (changes)\n{state['diff']}\n\n"
+        f"## Full File Contents\n{state['files_content']}"
     )
     if context:
         prompt += f"\n\n{context}"
-    prompt += f"\n\n{state['diff']}"
-    
+
     response = llm.invoke([HumanMessage(content=prompt)])
     return {"reviewer_output": response.content}
 
 
 def security_agent(state: ReviewState) -> dict:
     response = llm.invoke([HumanMessage(content=(
-        "You are a security expert. Review the following PR diff for security vulnerabilities "
+        "You are a security expert. Review the following PR for security vulnerabilities "
         "such as injection risks, exposed secrets, insecure dependencies, or auth issues. "
-        "Be concise. If no issues found, say so.\n\n"
-        f"{state['diff']}"
+        "Check both the diff and full file contents. Be concise. If no issues found, say so.\n\n"
+        f"## Diff\n{state['diff']}\n\n"
+        f"## Full File Contents\n{state['files_content']}"
     ))])
     return {"security_output": response.content}
 
 
 def performance_agent(state: ReviewState) -> dict:
     response = llm.invoke([HumanMessage(content=(
-        "You are a performance engineer. Review the following PR diff for performance issues "
-        "such as inefficient loops, unnecessary DB calls, memory leaks, or blocking operations. "
-        "Be concise. If no issues found, say so.\n\n"
-        f"{state['diff']}"
+        "You are a performance engineer. Review the following PR for performance issues "
+        "such as inefficient loops, unnecessary DB calls, memory leaks, blocking operations, "
+        "or large commented-out code blocks that should be removed. "
+        "Check both the diff and full file contents. Be concise. If no issues found, say so.\n\n"
+        f"## Diff\n{state['diff']}\n\n"
+        f"## Full File Contents\n{state['files_content']}"
     ))])
     return {"performance_output": response.content}
 
@@ -77,8 +83,8 @@ def summarizer_agent(state: ReviewState) -> dict:
 
 # --- Graph ---
 
-def run_review(diff: str) -> str:
-    """Entry point — takes a PR diff, returns the final markdown comment."""
+def run_review(diff: str, files_content: str = "") -> str:
+    """Entry point — takes a PR diff + full file contents, returns the final markdown comment."""
     graph = StateGraph(ReviewState)
 
     graph.add_node("fan_out", fan_out)
@@ -87,19 +93,15 @@ def run_review(diff: str) -> str:
     graph.add_node("performance", performance_agent)
     graph.add_node("summarizer", summarizer_agent)
 
-    # Entry fans out to all 3 agents in parallel
     graph.set_entry_point("fan_out")
     graph.add_edge("fan_out", "reviewer")
     graph.add_edge("fan_out", "security")
     graph.add_edge("fan_out", "performance")
-
-    # All 3 agents converge into summarizer
     graph.add_edge("reviewer", "summarizer")
     graph.add_edge("security", "summarizer")
     graph.add_edge("performance", "summarizer")
-
     graph.add_edge("summarizer", END)
 
     app = graph.compile()
-    result = app.invoke({"diff": diff})
+    result = app.invoke({"diff": diff, "files_content": files_content})
     return result["final_comment"]
