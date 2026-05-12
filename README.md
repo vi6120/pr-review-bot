@@ -9,41 +9,41 @@ An AI-powered GitHub App that automatically reviews every Pull Request for bugs,
 
 ---
 
-## ✨ What it does
+## What it does
 
-- 🤖 **Automatic reviews** — analyzes every PR when opened or updated
-- 🔀 **3 parallel AI agents** — code quality, security, and performance analyzed simultaneously
-- 💬 **Interactive chat** — ask questions by mentioning `@pullrequest-review-bot[bot]` in comments
-- 🧠 **Learning memory** — gets smarter over time using past reviews from your repo as context
-- ⚡ **Fast** — returns results in under 30 seconds for most PRs
-- 🔒 **Secure** — HMAC signature verification, rate limiting, and timeout protection
+- **Automatic reviews** — analyzes every PR when opened or updated
+- **3 parallel AI agents** — code quality, security, and performance analyzed simultaneously
+- **Interactive chat** — ask questions by mentioning `@pullrequest-review-bot[bot]` in comments
+- **Learning memory** — gets smarter over time using past reviews from your repo as context
+- **Fast** — returns results in under 30 seconds for most PRs
+- **Secure** — HMAC signature verification, rate limiting, and timeout protection
 
 ---
 
-## 📸 Example Review
+## Example Review
 
 When you open a PR, the bot posts a comment like this:
 
-> **🔍 Code Review Summary**
+> **Code Review Summary**
 > 
 > This PR requires attention for security and performance issues.
 > 
-> ### 🔴 Security Review
+> ### Security Review
 > - **Line 23 in `auth/login.py`**: SQL query built with string concatenation — vulnerable to SQL injection. Use parameterized queries instead.
 > - **Line 45**: Hardcoded API key detected. Move to environment variables.
 > 
-> ### 🟡 Performance Review  
+> ### Performance Review  
 > - **Line 67 in `api/users.py`**: N+1 query inside loop. Fetch all users in a single query before the loop.
 > - **Line 102**: Large commented-out code block (50+ lines) should be removed to improve readability.
 > 
-> ### 🟢 Code Quality Review
+> ### Code Quality Review
 > - Overall structure is clean and follows best practices
 > - Consider extracting validation logic from `validate_user()` into smaller helper functions
 > - Good use of type hints throughout
 
 ---
 
-## 🚀 How to Install
+## How to Install
 
 1. **Click [Install App](https://github.com/apps/pullrequest-review-bot)**
 2. Choose your **personal account** or **organization**
@@ -55,7 +55,7 @@ That's it! No configuration files, no setup, no API keys needed.
 
 ---
 
-## 💬 Ask the Bot Questions
+## Ask the Bot Questions
 
 The bot isn't just a one-time reviewer — you can have a conversation with it. Mention `@pullrequest-review-bot[bot]` in any PR comment:
 
@@ -79,7 +79,7 @@ It remembers the conversation, so you can ask follow-up questions naturally.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 GitHub PR Event
@@ -115,7 +115,7 @@ Post to GitHub    Store in Memory
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
@@ -128,7 +128,7 @@ Post to GitHub    Store in Memory
 
 ---
 
-## 🔒 Privacy & Security
+## Privacy & Security
 
 - ✅ Only reads code from repos you **explicitly grant access** to
 - ✅ Review data stored **per-repository** to improve future reviews
@@ -140,7 +140,7 @@ Post to GitHub    Store in Memory
 
 ---
 
-## 🎯 Features
+## Features
 
 ### Automatic PR Reviews
 - Triggered on every `pull_request` opened or synchronized event
@@ -170,7 +170,7 @@ Post to GitHub    Store in Memory
 
 ---
 
-## 💰 Costs (All Free Tier)
+## Costs (All Free Tier)
 
 | Service | Free Limit | Our Usage | Cost |
 |---------|------------|-----------|------|
@@ -184,7 +184,7 @@ Post to GitHub    Store in Memory
 
 ---
 
-## 🏠 Self-Hosting
+## Self-Hosting
 
 Want to run your own instance? Here's how:
 
@@ -264,7 +264,7 @@ railway up
 
 ---
 
-## 📊 Configuration
+## Configuration
 
 Optional environment variables for tuning:
 
@@ -279,7 +279,7 @@ Optional environment variables for tuning:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Here's how:
 
@@ -298,7 +298,7 @@ Contributions are welcome! Here's how:
 
 ---
 
-## 📝 License
+## License
 
 MIT License — free for personal and commercial use.
 
@@ -306,7 +306,7 @@ See [LICENSE](LICENSE) for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built by **Vikas Ramaswamy** ([@vi6120](https://github.com/vi6120))
 
@@ -318,15 +318,14 @@ Powered by:
 
 ---
 
-## 📞 Support
+## Support
 
 - **Issues**: [GitHub Issues](https://github.com/vi6120/pr-review-bot/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/vi6120/pr-review-bot/discussions)
-- **Email**: Create an issue for support requests
 
 ---
 
-## 🎯 Roadmap
+## Roadmap
 
 - [ ] GitHub Marketplace listing
 - [ ] Sentry error tracking integration
@@ -339,7 +338,7 @@ Powered by:
 
 ---
 
-## ⭐ Star History
+## Star History
 
 If you find this useful, please star the repo!
 
