@@ -1,94 +1,65 @@
 import hashlib
-from typing import List, Optional
+import logging
+from typing import Optional
 from supabase import create_client, Client
-from langchain_community.vectorstores import SupabaseVectorStore
 from config import config
+
+logger = logging.getLogger(__name__)
 
 
 class MemoryStore:
     def __init__(self):
         self.supabase: Optional[Client] = None
-        self.vector_store: Optional[SupabaseVectorStore] = None
         self._init_supabase()
 
     def _init_supabase(self):
-        """Initialize Supabase client and vector store."""
-        supabase_url = config.SUPABASE_URL
-        supabase_key = config.SUPABASE_KEY
-
-        if not supabase_url or not supabase_key:
-            print("⚠️  Supabase not configured — memory disabled")
+        if not config.SUPABASE_URL or not config.SUPABASE_KEY:
+            logger.warning("Supabase not configured — memory disabled")
             return
-
         try:
-            self.supabase = create_client(supabase_url, supabase_key)
-            
-            # Try to use local embeddings, but skip if not available
-            from langchain_community.embeddings import HuggingFaceEmbeddings
-            embeddings = HuggingFaceEmbeddings(
-                model_name="sentence-transformers/all-MiniLM-L6-v2",
-                model_kwargs={'device': 'cpu'},
-                encode_kwargs={'normalize_embeddings': True}
-            )
-            
-            self.vector_store = SupabaseVectorStore(
-                client=self.supabase,
-                embedding=embeddings,
-                table_name="pr_reviews",
-                query_name="match_pr_reviews",
-            )
-        except ImportError:
-            print("⚠️  sentence-transformers not installed — memory disabled")
-            self.vector_store = None
+            self.supabase = create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
+            logger.info("Supabase memory store initialized")
         except Exception as e:
-            print(f"⚠️  Memory initialization failed: {e}")
-            self.vector_store = None
+            logger.warning(f"Memory initialization failed: {e}")
+            self.supabase = None
 
-    def store_review(self, repo: str, pr_number: int, diff: str, review: str) -> str:
-        """Store a review in memory with embedding."""
-        if not self.vector_store:
+    def store_review(self, repo: str, pr_number: int, diff: str, review: str) -> None:
+        if not self.supabase:
+            return
+        try:
+            self.supabase.table("pr_reviews").upsert({
+                "id": hashlib.md5(f"{repo}/{pr_number}".encode()).hexdigest(),
+                "repo": repo,
+                "pr_number": pr_number,
+                "diff": diff[:5000],   # cap stored diff size
+                "review": review[:5000],
+            }).execute()
+        except Exception as e:
+            logger.warning(f"Failed to store review: {e}")
+
+    def get_context_for_review(self, repo: str) -> str:
+        """Retrieve the last 2 reviews from the same repo as context."""
+        if not self.supabase:
+            return ""
+        try:
+            result = (
+                self.supabase.table("pr_reviews")
+                .select("review")
+                .eq("repo", repo)
+                .order("created_at", desc=True)
+                .limit(2)
+                .execute()
+            )
+            reviews = [r["review"] for r in result.data if r.get("review")]
+            if not reviews:
+                return ""
+            context = "## Past Reviews From This Repo\n"
+            for i, r in enumerate(reviews, 1):
+                context += f"**Review {i}:**\n{r[:500]}...\n\n"
+            return context
+        except Exception as e:
+            logger.warning(f"Failed to fetch memory context: {e}")
             return ""
 
-        # Create a unique ID for this review
-        review_id = hashlib.md5(f"{repo}/{pr_number}".encode()).hexdigest()
-        metadata = {
-            "repo": repo,
-            "pr_number": pr_number,
-            "review_id": review_id,
-            "diff_hash": hashlib.md5(diff.encode()).hexdigest(),
-        }
 
-        # Store both diff and review as separate documents
-        self.vector_store.add_texts(
-            texts=[diff, review],
-            metadatas=[metadata, metadata],
-            ids=[f"{review_id}_diff", f"{review_id}_review"],
-        )
-        return review_id
-
-    def find_similar_reviews(self, diff: str, k: int = 3) -> List[str]:
-        """Find similar past reviews based on diff similarity."""
-        if not self.vector_store:
-            return []
-
-        results = self.vector_store.similarity_search(diff, k=k)
-        similar_reviews = []
-        for doc in results:
-            if doc.metadata.get("review_id", "").endswith("_review"):
-                similar_reviews.append(doc.page_content)
-        return similar_reviews
-
-    def get_context_for_review(self, diff: str) -> str:
-        """Retrieve similar past reviews to provide context."""
-        similar = self.find_similar_reviews(diff)
-        if not similar:
-            return ""
-
-        context = "## Similar Past Reviews\n"
-        for i, review in enumerate(similar[:2], 1):
-            context += f"**Review {i}:**\n{review[:500]}...\n\n"
-        return context
-
-
-# Global instance
 memory = MemoryStore()

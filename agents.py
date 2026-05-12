@@ -12,6 +12,7 @@ llm = get_llm()
 class ReviewState(TypedDict):
     diff: str
     files_content: str
+    repo: str
     reviewer_output: str
     security_output: str
     performance_output: str
@@ -22,7 +23,7 @@ class ReviewState(TypedDict):
 
 def reviewer_agent(state: ReviewState) -> dict:
     try:
-        context = memory.get_context_for_review(state['diff'])
+        context = memory.get_context_for_review(state['repo'])
     except Exception:
         context = ""
 
@@ -83,7 +84,7 @@ def summarizer_agent(state: ReviewState) -> dict:
 
 # --- Graph ---
 
-def run_review(diff: str, files_content: str = "") -> str:
+def run_review(diff: str, files_content: str = "", repo: str = "") -> str:
     """Entry point — takes a PR diff + full file contents, returns the final markdown comment."""
     graph = StateGraph(ReviewState)
 
@@ -103,5 +104,5 @@ def run_review(diff: str, files_content: str = "") -> str:
     graph.add_edge("summarizer", END)
 
     app = graph.compile()
-    result = app.invoke({"diff": diff, "files_content": files_content})
+    result = app.invoke({"diff": diff, "files_content": files_content, "repo": repo})
     return result["final_comment"]
