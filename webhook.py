@@ -153,6 +153,7 @@ async def health():
 
 
 @app.get("/ping")
+@app.head("/ping")
 async def ping():
     """Keep-alive endpoint — used by UptimeRobot to prevent Railway sleep."""
     return {"status": "alive"}
