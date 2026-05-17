@@ -19,8 +19,9 @@ An AI-powered GitHub App that automatically reviews every Pull Request for bugs,
 - **Secure** — HMAC signature verification, rate limiting, and timeout protection
 
 ---
+## Example review
 
-## Example Review
+![Bot review comment on a real PR](screenshot.png)
 
 When you open a PR, the bot posts a comment like this:
 
@@ -130,13 +131,13 @@ Post to GitHub    Store in Memory
 
 ## Privacy & Security
 
-- ✅ Only reads code from repos you **explicitly grant access** to
-- ✅ Review data stored **per-repository** to improve future reviews
-- ✅ No code shared with third parties beyond the LLM provider (Groq)
-- ✅ All webhooks verified with **HMAC signatures**
-- ✅ **Rate limited** to prevent abuse (10 reviews per repo per hour)
-- ✅ **Timeout protection** — reviews that take longer than 2 minutes are cancelled
-- ✅ **PR size guard** — skips PRs larger than 50KB with a helpful message
+-  Only reads code from repos you **explicitly grant access** to
+-  Review data stored **per-repository** to improve future reviews
+-  No code shared with third parties beyond the LLM provider (Groq)
+-  All webhooks verified with **HMAC signatures**
+-  **Rate limited** to prevent abuse (10 reviews per repo per hour)
+-  **Timeout protection** — reviews that take longer than 2 minutes are cancelled
+-  **PR size guard** — skips PRs larger than 50KB with a helpful message
 
 ---
 
