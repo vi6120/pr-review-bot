@@ -1,4 +1,4 @@
-# PR Review Bot 🤖
+# PR Review Bot 
 
 > AI-powered GitHub App that automatically reviews every Pull Request for bugs, security vulnerabilities, and performance issues — free to install, zero configuration required.
 
@@ -63,15 +63,15 @@ When you open a PR, the bot posts a comment like this:
 >
 > This PR requires attention for security and performance issues.
 >
-> **Security 🔴**
+> **Security**
 > - `auth/login.py` line 23: SQL query built with string concatenation — vulnerable to SQL injection. Use parameterised queries.
 > - Line 45: Hardcoded API key detected. Move to environment variables.
 >
-> **Performance 🟡**
+> **Performance**
 > - `api/users.py` line 67: N+1 query inside loop. Fetch all users in a single query before the loop.
 > - Line 102: 50+ line commented-out block should be removed.
 >
-> **Code Quality 🟢**
+> **Code Quality**
 > - Overall structure is clean and follows best practices.
 > - Consider extracting validation logic from `validate_user()` into smaller helper functions.
 
@@ -231,7 +231,7 @@ Contributions welcome.
 git checkout -b feature/your-feature
 git commit -m 'Add your feature'
 git push origin feature/your-feature
-# Open a PR — the bot will review it automatically 🤖
+# Open a PR — the bot will review it automatically 
 ```
 
 **Ideas for contributions:**
